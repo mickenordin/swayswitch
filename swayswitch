@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 """A simple windowswitcher for sway"""
 # switch_window, get_windows and extract_nodes_iterative is derived from 
 # https://github.com/tobiaspc/wofi-scripts Copyright (c) 2020 Tobi which
