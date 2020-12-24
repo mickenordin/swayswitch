@@ -18,3 +18,6 @@ Add a keybinding to ~/.config/sway/config:
 bindsym $mod+Tab exec ~/.local/bin/swayswitch
 ```
 Reload config and open up window switcher with $mod+tab. 
+
+## Thanks
+Thanks to tobiaspc for the startingpoint for this code: <https://github.com/tobiaspc/wofi-scripts>
