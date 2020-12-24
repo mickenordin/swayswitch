@@ -1,6 +1,10 @@
 # swayswitch
 A simple windowswitcher written in python using wxPython
 
+## Dependencies
+For Debian/Ubuntu: python3-wxgtk4.0
+For Fedora/RHEL: python3-wxpython4
+
 ## Installation
 ```
 wget -O ~/.local/bin/swayswitch https://github.com/mickenordin/swayswitch/blob/main/swayswitch
