@@ -1,10 +1,12 @@
 # swayswitch
 A simple windowswitcher written in python using wxPython
 
+## Installation
+```
+wget -O ~/.local/bin/swayswitch https://github.com/mickenordin/swayswitch/blob/main/swayswitch
+chmod +x ~/.local/bin/swayswitch
+```
 ## Usage
-```
-wget -O https://github.com/mickenordin/swayswitch/blob/main/swayswitch https://github.com/mickenordin/swayswitch/blob/main/swayswitch
-```
 Add a keybinding to ~/.config/sway/config:
 
 ```
