@@ -2,8 +2,9 @@
 """A simple windowswitcher for sway"""
 # switch_window, get_windows and extract_nodes_iterative is derived from 
 # https://github.com/tobiaspc/wofi-scripts Copyright (c) 2020 Tobi which
-# is covered by the MIT License. However this program is licenced under
-# the GPLv3+ Copyright (c) 2020 Micke Nordin. See LICENSE file for details.
+# is covered by the MIT License. However this program is licensed under
+# the GPLv3+ Copyright (c) 2020 Micke Nordin <hej@mic.ke>.
+# See LICENSE file for details.
 
 import json
 import math
