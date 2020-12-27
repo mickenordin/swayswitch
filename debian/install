@@ -1,0 +1,2 @@
+src/swayswitch /usr/bin
+src/swayswitch.conf /etc/sway/config.d

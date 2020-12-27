@@ -1,0 +1,15 @@
+Source: swayswitch
+Section: utils
+Priority: optional
+Maintainer: Micke Nordin <hej@mic.ke>
+Build-Depends: debhelper (>=10)
+Standards-Version: 4.0.0
+Homepage: https://github.com/mickenordin/swayswitch
+
+Package: swayswitch
+Section: utils
+Priority: optional
+Architecture: all
+Depends: python3-wxgtk4.0, sway 
+Essential: no
+Description: SwaySwitch is a simple window switcher for Sway

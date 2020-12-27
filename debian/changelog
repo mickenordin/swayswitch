@@ -1,0 +1,5 @@
+swayswitch (0.0.1) unstable; urgency=low
+
+    * Initial Debian packaging.
+
+ -- Micke Nordin <hej@mic.ke>  Thu, 27 Dec 2020 13:53:37 +0100
