@@ -22,3 +22,5 @@ echo 'swayswitch ('${version}') unstable; urgency=low
 '| wl-copy
 
 vim ${BASEDIR}/swayswitch/debian/changelog
+cd  ${BASEDIR}/swayswitch
+git commit -a -m "Bump version"
