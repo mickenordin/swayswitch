@@ -1,3 +1,10 @@
+swayswitch (0.0.2) unstable; urgency=low
+
+    * Add ability to toggle fullscreen mode when in switcher mode
+
+ -- Micke Nordin <hej@mic.ke>  Sun, 27 Dec 2020 16:10:35 +0100
+
+
 swayswitch (0.0.1) unstable; urgency=low
 
     * Initial Debian packaging.
