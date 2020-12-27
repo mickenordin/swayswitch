@@ -12,10 +12,15 @@ wget -O ~/.local/bin/swayswitch https://github.com/mickenordin/swayswitch/blob/m
 chmod +x ~/.local/bin/swayswitch
 ```
 ## Usage
-Add a keybinding to ~/.config/sway/config:
+Add sway config to ~/.config/sway/config:
 
 ```
-bindsym $mod+Tab exec ~/.local/bin/swayswitch
+mode "switcher" {                   
+    # Remove normal bidnings and set a dummy variable so we do something 
+    set $hello "hello"
+}
+
+bindsym $mod+Tab exec ~/.local/bin/swayswitch, mode "switcher"
 ```
 Reload config and open up window switcher with $mod+tab. 
 

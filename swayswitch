@@ -20,6 +20,7 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
         wx.Frame.__init__(self, None, title="", style=wx.STAY_ON_TOP)  # pylint: disable=no-member
         # create a panel in the frame
         self.pnl = wx.Panel(self)  # pylint: disable=no-member
+
         # get windows from sway
         windows = get_windows()
         label_len = 20
@@ -41,6 +42,7 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
                     label = window['name']
                 if len(label) > label_len:
                     label = label[:label_len]
+            label = "ws" + str(window['workspace']) + ":\n" + label
             winid = window['id']
             size = wx.Window.GetFont(self).GetPointSize() * label_len  # pylint: disable=no-member
             btn = wx.Button(  # pylint: disable=no-member
@@ -61,13 +63,16 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
         """Intercept esc key press"""
         keycode = event.GetUnicodeKey()
         if keycode == wx.WXK_ESCAPE:  # pylint: disable=no-member
+            """enter normal mode and exit"""
+            command = 'swaymsg mode "default"'
+            subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
             self.Close(True)
         else:
             event.Skip(True)
 
     def switch_window(self, event, winid):  # pylint: disable=unused-argument
-        """Switches the focus to the given id"""
-        command = "swaymsg [con_id={}] focus".format(winid)
+        """Switches the focus to the given id and enter normalmode"""
+        command = 'swaymsg [con_id={}] focus, mode "default"'.format(winid)
         subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
         self.Close(True)
 
@@ -101,6 +106,7 @@ def extract_nodes_iterative(workspace):
     floating_nodes = workspace.get('floating_nodes')
 
     for floating_node in floating_nodes:
+        floating_node['workspace'] = workspace['num']
         all_nodes.append(floating_node)
 
     nodes = workspace.get('nodes')
@@ -109,10 +115,12 @@ def extract_nodes_iterative(workspace):
 
         # Leaf node
         if len(node.get('nodes')) == 0:
+            node['workspace'] = workspace['num']
             all_nodes.append(node)
         # Nested node, handled iterative
         else:
             for inner_node in node.get('nodes'):
+                inner_node['workspace'] = workspace['num']
                 nodes.append(inner_node)
 
     return all_nodes
