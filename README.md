@@ -29,3 +29,6 @@ Esc aborts and enter switches window. It is also possible to select window with 
 
 ## Thanks
 Thanks to tobiaspc for the startingpoint for this code: <https://github.com/tobiaspc/wofi-scripts>
+
+## Screenshot
+![Open window switcher](https://github.com/mickenordin/swayswitch/blob/main/screenshots/scrot1.png)
