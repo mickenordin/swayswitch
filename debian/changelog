@@ -1,3 +1,10 @@
+swayswitch (0.0.4) unstable; urgency=low
+
+    * Add keybinding for exiting switcher mode
+
+ -- Micke Nordin <hej@mic.ke>  Mon, 28 Dec 2020 11:49:12 +0100
+
+
 swayswitch (0.0.3) unstable; urgency=low
 
     * Don't overwrite conffiles
