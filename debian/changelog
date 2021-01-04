@@ -1,3 +1,10 @@
+swayswitch (0.0.8) unstable; urgency=low
+
+    * Use svg icons if possible
+
+ -- Micke Nordin <hej@mic.ke>  Mon, 04 Jan 2021 16:20:58 +0100
+
+
 swayswitch (0.0.7) unstable; urgency=low
 
     * Better error handling
