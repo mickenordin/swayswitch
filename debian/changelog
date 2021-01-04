@@ -1,3 +1,10 @@
+swayswitch (0.0.6) unstable; urgency=low
+
+    * Handle missing icons
+
+ -- Micke Nordin <hej@mic.ke>  Mon, 04 Jan 2021 14:22:59 +0100
+
+
 swayswitch (0.0.5) unstable; urgency=low
 
     * Add support for icons
