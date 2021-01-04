@@ -24,11 +24,11 @@ sudo dnf install swayswitch
 ```
 
 ## Usage
-Reload config and open up window switcher with $mod+tab. Move around the switcher using arrow-keys or Tab.
+Reload config and open up window switcher with Mod4+tab. Move around the switcher using arrow-keys or Tab.
 Esc aborts and enter switches window. It is also possible to select window with the mouse. Configuration is installed to /etc/sway/config.d/swayswitch.conf
 
-Two keybindings work by default, $mod+f to toggle fullscreen mode, that is if you manage to bring up the switcher while in fullscreen mode you can display the 
-switcher window by exiting fullscreen mode. You can also exit switcher mode by pressing $mod+q, this is usefull if you manage to get another window on to of
+Two keybindings work by default, Mod4+f to toggle fullscreen mode, that is if you manage to bring up the switcher while in fullscreen mode you can display the 
+switcher window by exiting fullscreen mode. You can also exit switcher mode by pressing Mod4+q, this is usefull if you manage to get another window on to of
 the switcher window somehow.
 
 ## Thanks
