@@ -68,11 +68,15 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
             size = wx.Window.GetFont(self).GetPointSize() * label_len  # pylint: disable=no-member
             command = get_command(window['pid'])
             desktop_file = self.get_desktop_file(command)
-            unscaled_bitmap = wx.Bitmap(self.get_icon(desktop_file))  # pylint: disable=no-member
-            image = unscaled_bitmap.ConvertToImage()
-            image = image.Scale(self.icon_size, self.icon_size,
-                                wx.IMAGE_QUALITY_HIGH)  # pylint: disable=no-member
-            bitmap = wx.Bitmap(image)  # pylint: disable=no-member
+            icon = self.get_icon(desktop_file)  # pylint: disable=no-member
+            if icon:
+                unscaled_bitmap = wx.Bitmap(self.get_icon(desktop_file))  # pylint: disable=no-member
+                image = unscaled_bitmap.ConvertToImage()
+                image = image.Scale(self.icon_size, self.icon_size,
+                                    wx.IMAGE_QUALITY_HIGH)  # pylint: disable=no-member
+                bitmap = wx.Bitmap(image)  # pylint: disable=no-member
+            else:
+                bitmap = wx.Bitmap()
             btn = wx.BitmapButton(  # pylint: disable=no-member
                 self.pnl,
                 id=winid,
@@ -149,7 +153,10 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
                 icon = pos_icon
                 break
         if not icon:
-            icon = sorted(possible_icons)[0]
+            try:
+                icon = sorted(possible_icons)[0]
+            except IndexError:
+                icon = ""
         return icon
 
     def on_key_press(self, event):
