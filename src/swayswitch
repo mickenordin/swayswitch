@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """A simple windowswitcher for sway"""
-# switch_window, get_windows and extract_nodes_iterative is derived from 
+# switch_window, get_windows and extract_nodes_iterative is derived from
 # https://github.com/tobiaspc/wofi-scripts Copyright (c) 2020 Tobi which
 # is covered by the MIT License. However this program is licensed under
 # the GPLv3+ Copyright (c) 2020 Micke Nordin <hej@mic.ke>.
@@ -8,6 +8,7 @@
 
 import json
 import math
+import os
 import subprocess
 
 import wx
@@ -15,21 +16,39 @@ import wx
 
 class SwaySwitch(wx.Frame):  # pylint: disable=no-member
     """Frame for the swayswitcher"""
-    def __init__(self, *args, **kw):  # pylint: disable=unused-argument
+    def __init__(self, *args, **kw):  # pylint: disable=unused-argument,too-many-locals
         """Constructor"""
         wx.Frame.__init__(self, None, title="", style=wx.STAY_ON_TOP)  # pylint: disable=no-member
         # create a panel in the frame
         self.pnl = wx.Panel(self)  # pylint: disable=no-member
 
+        # Some xdg data
+        self.home = os.environ.get('HOME')
+        self.base_dirs = []
+        pos_dirs = os.environ.get('XDG_DATA_DIRS').split(":")
+        if not pos_dirs:
+            pos_dirs = [
+                "/usr/share", "/usr/local/share", self.home + "/.local/share",
+                self.home + "/.local/share/flatpak/exports/share",
+                "/var/lib/flatpak/exports/share"
+            ]
+        for pos_dir in pos_dirs:
+            if os.path.exists(pos_dir):
+                self.base_dirs.append(pos_dir)
+
         # get windows from sway
         windows = get_windows()
         label_len = 20
+
+        # Icon size
+        self.icon_size = 128
 
         # and create a sizer to manage the layout of child widgets
         x_and_y = int(math.sqrt(len(windows)) + 0.5)
         sizer = wx.GridSizer(x_and_y)  # pylint: disable=no-member
         self.pnl.SetSizer(sizer)
         for window in windows:
+            inner_sizer = wx.BoxSizer(orient=wx.VERTICAL)  # pylint: disable=no-member
             try:
                 label = window['window_properties']['class']
             except KeyError:
@@ -42,28 +61,102 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
                     label = window['name']
                 if len(label) > label_len:
                     label = label[:label_len]
-            label = "ws" + str(window['workspace']) + ":\n" + label
+
+            # This is setting up an inner sizer with a static text label and an image icon
+            label = "ws" + str(window['workspace']) + ": " + label
             winid = window['id']
             size = wx.Window.GetFont(self).GetPointSize() * label_len  # pylint: disable=no-member
-            btn = wx.Button(  # pylint: disable=no-member
-                parent=self.pnl,
+            command = get_command(window['pid'])
+            desktop_file = self.get_desktop_file(command)
+            unscaled_bitmap = wx.Bitmap(self.get_icon(desktop_file))  # pylint: disable=no-member
+            image = unscaled_bitmap.ConvertToImage()
+            image = image.Scale(self.icon_size, self.icon_size,
+                                wx.IMAGE_QUALITY_HIGH)  # pylint: disable=no-member
+            bitmap = wx.Bitmap(image)  # pylint: disable=no-member
+            btn = wx.BitmapButton(  # pylint: disable=no-member
+                self.pnl,
                 id=winid,
-                label=label,
+                bitmap=bitmap,
                 size=wx.Size(size, size))  # pylint: disable=no-member
             btn.Bind(
                 wx.EVT_BUTTON,
                 lambda event, mwinid=winid: self.switch_window(event, mwinid))
-            sizer.Add(btn, 0, wx.ALIGN_CENTER)  # pylint: disable=no-member
             # Set up esc keybinding
             self.Bind(wx.EVT_CHAR_HOOK, lambda event: self.on_key_press(event))  # pylint: disable=unnecessary-lambda
+            statictext = wx.StaticText(self.pnl, -1, label)  # pylint: disable=no-member
+            inner_sizer.Add(statictext, 0, wx.ALIGN_CENTER)  # pylint: disable=no-member
+            inner_sizer.Add(btn, 0, wx.ALIGN_CENTER)  # pylint: disable=no-member
+            inner_sizer.Fit(self)
+            inner_sizer.Layout()
+            sizer.Add(inner_sizer, 0, wx.ALIGN_CENTER)  # pylint: disable=no-member
         sizer.Fit(self)
         sizer.Layout()
+
+    def get_desktop_file(self, command):
+        """From here we return first dektopfile"""
+        desktop_file = None
+        for base_dir in [
+                directory for directory in self.base_dirs if directory
+        ]:
+            directory = base_dir + "/applications"
+            if os.path.exists(directory):
+                command = "grep -l {} {}/*.desktop".format(command, directory)
+                process = subprocess.Popen(command,
+                                           shell=True,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE)
+                for data in [i for i in process.communicate() if i]:
+                    for result in data.decode().split('\n'):
+                        desktop_file = result
+                        break
+        return desktop_file
+
+    def get_icon(self, desktop_file):
+        """ Find icon from a desktop file"""
+        command = "grep Icon= {}".format(desktop_file)
+        process = subprocess.Popen(command,
+                                   shell=True,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        for data in [i.rstrip() for i in process.communicate() if i]:
+            icon_name = data.decode().split('=')[1]
+        # Find icon dirs
+        icon_dirs = []
+        for base_dir in [
+                directory for directory in self.base_dirs if directory
+        ]:
+            directory = base_dir + "/icons"
+            icon_dirs.append(directory)
+        icon_dirs.append(self.home + "/.icons")
+        icon_dirs.append("/usr/share/pixmaps")
+        possible_icons = []
+        for icon_dir in [directory for directory in icon_dirs if directory]:
+            if os.path.exists(icon_dir):
+                command = "find {} -name *{}.png".format(icon_dir, icon_name)
+                process = subprocess.Popen(command,
+                                           shell=True,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE)
+                result = process.communicate()[0].split()
+                for data in result:
+                    icon_cand = data.decode()
+                    if icon_cand not in possible_icons:
+                        possible_icons.append(icon_cand)
+        # Try to find prefered size
+        icon = None
+        for pos_icon in possible_icons:
+            if str(self.icon_size) + "x" + str(self.icon_size) in pos_icon:
+                icon = pos_icon
+                break
+        if not icon:
+            icon = sorted(possible_icons)[0]
+        return icon
 
     def on_key_press(self, event):
         """Intercept esc key press"""
         keycode = event.GetUnicodeKey()
         if keycode == wx.WXK_ESCAPE:  # pylint: disable=no-member
-            """enter normal mode and exit"""
+            # enter normal mode and exit
             command = 'swaymsg mode "default"'
             subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
             self.Close(True)
@@ -75,6 +168,17 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
         command = 'swaymsg [con_id={}] focus, mode "default"'.format(winid)
         subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
         self.Close(True)
+
+
+def get_command(pid):
+    """Returns a list of all json window objects"""
+    command = "ps h c -p {} -o command".format(pid)
+    process = subprocess.Popen(command,
+                               shell=True,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    result = process.communicate()[0].rstrip().decode()
+    return result
 
 
 def get_windows():
