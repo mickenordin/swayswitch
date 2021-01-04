@@ -1,5 +1,5 @@
 # swayswitch
-A simple windows witcher for Sway wayland compositor written in python using wxPython
+A simple window switcher for Sway wayland compositor written in python using wxPython
 
 ## Dependencies
 For Debian/Ubuntu: ```python3-wxgtk4.0```
