@@ -25,7 +25,10 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
         # Some xdg data
         self.home = os.environ.get('HOME')
         self.base_dirs = []
-        pos_dirs = os.environ.get('XDG_DATA_DIRS').split(":")
+        xdg_dirs = os.environ.get('XDG_DATA_DIRS')
+        pos_dirs = []
+        if xdg_dirs:
+            pos_dirs = xdg_dirs.split(":")
         if not pos_dirs:
             pos_dirs = [
                 "/usr/share", "/usr/local/share", self.home + "/.local/share",
@@ -99,18 +102,17 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
     def get_desktop_file(self, command):
         """From here we return first dektopfile"""
         desktop_file = None
-        for base_dir in [
-                directory for directory in self.base_dirs if directory
-        ]:
+        for base_dir in self.base_dirs:
             directory = base_dir + "/applications"
             if os.path.exists(directory):
-                command = "grep -l {} {}/*.desktop".format(command, directory)
+                command = "grep -s -l {} {}/*.desktop".format(command, directory)
                 process = subprocess.Popen(command,
                                            shell=True,
                                            stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE)
                 for data in [i for i in process.communicate() if i]:
                     for result in data.decode().split('\n'):
+                        print(result)
                         desktop_file = result
                         break
         return desktop_file
@@ -123,7 +125,10 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         for data in [i.rstrip() for i in process.communicate() if i]:
-            icon_name = data.decode().split('=')[1]
+            try:
+                icon_name = data.decode().split('=')[1]
+            except IndexError:
+                return ""
         # Find icon dirs
         icon_dirs = []
         for base_dir in [
