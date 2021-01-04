@@ -10,13 +10,15 @@ import json
 import math
 import os
 import subprocess
+from io import BytesIO
 
+import cairosvg
 import wx
 
 
 class SwaySwitch(wx.Frame):  # pylint: disable=no-member
     """Frame for the swayswitcher"""
-    def __init__(self, *args, **kw):  # pylint: disable=unused-argument,too-many-locals
+    def __init__(self, *args, **kw):  # pylint: disable=unused-argument,too-many-locals,too-many-branches,too-many-statements
         """Constructor"""
         wx.Frame.__init__(self, None, title="", style=wx.STAY_ON_TOP)  # pylint: disable=no-member
         # create a panel in the frame
@@ -73,13 +75,18 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
             desktop_file = self.get_desktop_file(command)
             icon = self.get_icon(desktop_file)  # pylint: disable=no-member
             if icon:
-                unscaled_bitmap = wx.Bitmap(self.get_icon(desktop_file))  # pylint: disable=no-member
-                image = unscaled_bitmap.ConvertToImage()
+                if icon.endswith(".svg"):
+                    svgpng = cairosvg.svg2png(
+                        bytestring=open(icon).read().encode('utf-8'))
+                    image = wx.Image(BytesIO(svgpng), wx.BITMAP_TYPE_PNG) # pylint: disable=no-member
+                else:
+                    unscaled_bitmap = wx.Bitmap(self.get_icon(desktop_file))  # pylint: disable=no-member
+                    image = unscaled_bitmap.ConvertToImage()
                 image = image.Scale(self.icon_size, self.icon_size,
                                     wx.IMAGE_QUALITY_HIGH)  # pylint: disable=no-member
                 bitmap = wx.Bitmap(image)  # pylint: disable=no-member
             else:
-                bitmap = wx.Bitmap()
+                bitmap = wx.Bitmap() # pylint: disable=no-member
             btn = wx.BitmapButton(  # pylint: disable=no-member
                 self.pnl,
                 id=winid,
@@ -105,19 +112,19 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
         for base_dir in self.base_dirs:
             directory = base_dir + "/applications"
             if os.path.exists(directory):
-                command = "grep -s -l {} {}/*.desktop".format(command, directory)
+                command = "grep -s -l {} {}/*.desktop".format(
+                    command, directory)
                 process = subprocess.Popen(command,
                                            shell=True,
                                            stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE)
                 for data in [i for i in process.communicate() if i]:
                     for result in data.decode().split('\n'):
-                        print(result)
                         desktop_file = result
                         break
         return desktop_file
 
-    def get_icon(self, desktop_file):
+    def get_icon(self, desktop_file): # pylint: disable=too-many-branches
         """ Find icon from a desktop file"""
         command = "grep Icon= {}".format(desktop_file)
         process = subprocess.Popen(command,
@@ -141,12 +148,20 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
         possible_icons = []
         for icon_dir in [directory for directory in icon_dirs if directory]:
             if os.path.exists(icon_dir):
-                command = "find {} -name *{}.png".format(icon_dir, icon_name)
+                command = "find {} -name *{}.svg".format(icon_dir, icon_name)
                 process = subprocess.Popen(command,
                                            shell=True,
                                            stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE)
                 result = process.communicate()[0].split()
+                if not result:
+                    command = "find {} -name *{}.png".format(
+                        icon_dir, icon_name)
+                    process = subprocess.Popen(command,
+                                               shell=True,
+                                               stdout=subprocess.PIPE,
+                                               stderr=subprocess.PIPE)
+                    result = process.communicate()[0].split()
                 for data in result:
                     icon_cand = data.decode()
                     if icon_cand not in possible_icons:
@@ -154,9 +169,12 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
         # Try to find prefered size
         icon = None
         for pos_icon in possible_icons:
-            if str(self.icon_size) + "x" + str(self.icon_size) in pos_icon:
+            if pos_icon.endswith(".svg"):
                 icon = pos_icon
                 break
+            if not icon and (str(self.icon_size) + "x" + str(self.icon_size)
+                             in pos_icon):
+                icon = pos_icon
         if not icon:
             try:
                 icon = sorted(possible_icons)[0]

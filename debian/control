@@ -10,6 +10,6 @@ Package: swayswitch
 Section: utils
 Priority: optional
 Architecture: all
-Depends: python3-wxgtk4.0, sway 
+Depends: python3-cairosvg, python3-wxgtk4.0, sway
 Essential: no
 Description: SwaySwitch is a simple window switcher for Sway
