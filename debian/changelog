@@ -1,3 +1,10 @@
+swayswitch (0.0.5) unstable; urgency=low
+
+    * Add support for icons
+
+ -- Micke Nordin <hej@mic.ke>  Mon, 04 Jan 2021 14:00:09 +0100
+
+
 swayswitch (0.0.4) unstable; urgency=low
 
     * Add keybinding for exiting switcher mode
