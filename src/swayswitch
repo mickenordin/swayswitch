@@ -13,6 +13,7 @@ import subprocess
 from io import BytesIO
 
 import cairosvg
+import toml
 import wx
 
 
@@ -30,9 +31,11 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
         # get windows from sway
         windows = get_windows()
 
-        # Get config
+        # Config defaults
         self.label_len = 20
         self.icon_size = 128
+        # Can be overwritten in config_file $HOME/.local/swayswitch/config
+        self.set_config_from_file()
 
         self.icon_dirs = self.get_icon_dirs()
 
@@ -206,6 +209,22 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
             inner_sizer.Fit(self)
             inner_sizer.Layout()
             self.sizer.Add(inner_sizer, 0, wx.ALIGN_CENTER)  # pylint: disable=no-member
+
+    def set_config_from_file(self):
+        """If user has created a config file we will use values from there"""
+        config_file = self.home + "/.local/swayswitch/config"
+        if os.path.exists(config_file):
+            try:
+                cfg = toml.load(config_file)
+                if cfg["label_len"]:
+                    self.label_len = cfg["label_len"]
+                if cfg["icon_size"]:
+                    self.icon_size = cfg["icon_size"]
+            except toml.TomlDecodeError:
+                #If use has formating errors we warn to stderr, but move on with defaults
+                os.write(
+                    2, b"WARNING: formatting errors in " +
+                    config_file.encode() + b"\n")
 
     def switch_window(self, event, winid):  # pylint: disable=unused-argument
         """Switches the focus to the given id and enter normalmode"""
