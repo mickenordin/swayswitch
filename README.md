@@ -1,5 +1,5 @@
 # swayswitch
-A simple window switcher for the Sway Wayland compositor written in python using wxPython.
+A simple window switcher for the [Sway](https://swaywm.org/) Wayland compositor written in python using wxPython.
 
 ## Installation
 
