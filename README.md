@@ -28,14 +28,14 @@ the switcher window somehow.
 
 ### Config files
 SwaySwitch uses two configuration files, one is supplied with the package and is installed to /etc/sway/config.d/swayswitch.conf. It contains default keybindings for Sway.
-The other on is optionally supplied by the user as $HOME/.local/swayswitch/config in toml format.
+The other one is optionally supplied by the user as $HOME/.local/swayswitch/config in toml format.
 
 Possible options are:
 ```
 label_len = 20
 icon_size = 128
 ```
-The example above is the default options. ```label_len``` is the total length of the text label above buttons and ```icon_size``` is the size of the icons in pixels. 
+The example above is the default options. ```label_len``` is the total length of the text label above buttons in number of characters and ```icon_size``` is the size of the icons in pixels. 
 
 ## Thanks
 Thanks to tobiaspc for the startingpoint for this code: <https://github.com/tobiaspc/wofi-scripts>
