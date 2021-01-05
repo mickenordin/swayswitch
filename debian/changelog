@@ -1,3 +1,10 @@
+swayswitch (0.1.0) unstable; urgency=low
+
+    * Uses optional config file
+
+ -- Micke Nordin <hej@mic.ke>  Tue, 05 Jan 2021 11:09:04 +0100
+
+
 swayswitch (0.0.8) unstable; urgency=low
 
     * Use svg icons if possible
