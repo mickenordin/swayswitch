@@ -96,13 +96,6 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
             bitmap = wx.Bitmap()  # pylint: disable=no-member
         return bitmap
 
-    def get_icon_path(self, desktop_file):
-        """Glue function to get icon path"""
-        icon_name = get_icon_name(desktop_file)
-        pos_icons = self.get_pos_icons(icon_name)
-        icon_path = self.get_right_size_icon(pos_icons)
-        return icon_path
-
     def get_icon_dirs(self):
         """Find icon dirs"""
         icon_dirs = []
@@ -115,6 +108,13 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
         icon_dirs.append("/usr/share/pixmaps")
 
         return icon_dirs
+
+    def get_icon_path(self, desktop_file):
+        """Glue function to get icon path"""
+        icon_name = get_icon_name(desktop_file)
+        pos_icons = self.get_pos_icons(icon_name)
+        icon_path = self.get_right_size_icon(pos_icons)
+        return icon_path
 
     def get_label(self, window):
         """Construct the label for the window"""
@@ -233,6 +233,33 @@ class SwaySwitch(wx.Frame):  # pylint: disable=no-member
         self.Close(True)
 
 
+def extract_nodes_iterative(workspace):
+    """Extracts all windows from a sway workspace json object"""
+    all_nodes = []
+
+    floating_nodes = workspace.get('floating_nodes')
+
+    for floating_node in floating_nodes:
+        floating_node['workspace'] = workspace['num']
+        all_nodes.append(floating_node)
+
+    nodes = workspace.get('nodes')
+
+    for node in nodes:
+
+        # Leaf node
+        if len(node.get('nodes')) == 0:
+            node['workspace'] = workspace['num']
+            all_nodes.append(node)
+        # Nested node, handled iterative
+        else:
+            for inner_node in node.get('nodes'):
+                inner_node['workspace'] = workspace['num']
+                nodes.append(inner_node)
+
+    return all_nodes
+
+
 def get_command(pid):
     """Returns a list of all json window objects"""
     command = "ps h c -p {} -o command".format(pid)
@@ -267,33 +294,6 @@ def get_windows():
                 if workspace.get('type') == 'workspace':
                     windows += extract_nodes_iterative(workspace)
     return windows
-
-
-def extract_nodes_iterative(workspace):
-    """Extracts all windows from a sway workspace json object"""
-    all_nodes = []
-
-    floating_nodes = workspace.get('floating_nodes')
-
-    for floating_node in floating_nodes:
-        floating_node['workspace'] = workspace['num']
-        all_nodes.append(floating_node)
-
-    nodes = workspace.get('nodes')
-
-    for node in nodes:
-
-        # Leaf node
-        if len(node.get('nodes')) == 0:
-            node['workspace'] = workspace['num']
-            all_nodes.append(node)
-        # Nested node, handled iterative
-        else:
-            for inner_node in node.get('nodes'):
-                inner_node['workspace'] = workspace['num']
-                nodes.append(inner_node)
-
-    return all_nodes
 
 
 def run_command(command):
